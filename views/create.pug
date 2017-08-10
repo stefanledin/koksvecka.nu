@@ -1,0 +1,9 @@
+extends layout
+
+block content
+    h1= title
+    form(action="/folket" method="POST")
+        .form-group
+            label(for="people") Folket i Ord&Bild
+            textarea.form-control(name="people" id="people" rows="20" placeholder="Ett namn per rad") #{people}
+        input.btn.btn-default(type="submit" value="Schemalägg")
