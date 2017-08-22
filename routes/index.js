@@ -31,13 +31,25 @@ router.post('/folket', (req, res, next) => {
 router.get('/nytt', (req, res) => {
     let people = fs.readFileSync(textFile, {encoding: 'utf-8'});
     people = people.split('\n');
-    
-    const schedule = collect(people).shuffle().split(2);
-    const weeks = 6;
-    for (var i = 0; i < weeks; i++) {
-        console.log(schedule[0][i]);
-        console.log(schedule[1][i]);
-        console.log('======');
+    people = collect(people).shuffle().split(2);
+
+    let startWeek = 34;
+    const endWeek = 51;
+    const weeks = endWeek - startWeek;
+    const schedule = [];
+
+    let i = 0;
+    while (schedule.length <= weeks) {
+        if (!people[0][i]) {
+            i = 0;
+        }
+        schedule.push({
+            week: startWeek,
+            person1: people[0][i],
+            person2: people[1][i]
+        });
+        startWeek++;
+        i++;
     }
     res.send(people);
 });
