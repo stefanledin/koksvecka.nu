@@ -29,8 +29,16 @@ router.post('/folket', (req, res, next) => {
 });
 
 router.get('/nytt', (req, res) => {
-    const people = fs.readFileSync(textFile, {encoding: 'utf-8'});
-    console.log(collect(people.split('\n').length));
+    let people = fs.readFileSync(textFile, {encoding: 'utf-8'});
+    people = people.split('\n');
+    
+    const schedule = collect(people).shuffle().split(2);
+    const weeks = 6;
+    for (var i = 0; i < weeks; i++) {
+        console.log(schedule[0][i]);
+        console.log(schedule[1][i]);
+        console.log('======');
+    }
     res.send(people);
 });
 
