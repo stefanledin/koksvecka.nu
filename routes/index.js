@@ -6,10 +6,19 @@ const collect = require('collect.js');
 const fs = require('fs');
 const path = require('path');
 const textFile = path.resolve(__dirname, '../public/people.txt');
+const scheduleFile = path.resolve(__dirname, '../public/schedule.json');
+const moment = require('moment');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-    res.render('index', { title: 'Express' });
+    fs.open(scheduleFile, 'r', (err, fd) => {
+        const schedule = (err) ? JSON.stringify([]) : fs.readFileSync(scheduleFile, {encoding: 'utf-8'});
+        const data = collect(JSON.parse(schedule)).where('week', moment().week()).all();
+        res.render('index', {
+            title: 'Köksvecka.nu',
+            data: data[0]
+        });
+    });
 });
 
 router.get('/folket', (req, res, next) => {
@@ -51,7 +60,8 @@ router.get('/nytt', (req, res) => {
         startWeek++;
         i++;
     }
-    res.send(people);
+    fs.writeFile(scheduleFile, JSON.stringify(schedule));
+    res.json(JSON.stringify(schedule));
 });
 
 module.exports = router;
