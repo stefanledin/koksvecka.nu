@@ -12,7 +12,10 @@ const moment = require('moment');
 /* GET home page. */
 router.get('/', function(req, res, next) {
     fs.open(scheduleFile, 'r', (err, fd) => {
-        const schedule = (err) ? JSON.stringify([]) : fs.readFileSync(scheduleFile, {encoding: 'utf-8'});
+        if (err) return res.redirect('/folket');
+
+        const schedule = fs.readFileSync(scheduleFile, {encoding: 'utf-8'});
+        console.log(JSON.parse(schedule));
         const data = collect(JSON.parse(schedule)).where('week', moment().week()).all();
         res.render('index', {
             title: 'Köksvecka.nu',
@@ -26,6 +29,7 @@ router.get('/folket', (req, res, next) => {
         const people = (err) ? '' : fs.readFileSync(textFile, {encoding: 'utf-8'});
         res.render('create', {
             title: 'Schemalägg',
+            current_week: moment().week(),
             people
         });
     });
@@ -34,16 +38,11 @@ router.get('/folket', (req, res, next) => {
 router.post('/folket', (req, res, next) => {
     let people = req.body.people;
     fs.writeFile(textFile, people);
-    res.redirect('/folket');
-});
 
-router.get('/nytt', (req, res) => {
-    let people = fs.readFileSync(textFile, {encoding: 'utf-8'});
     people = people.split('\n');
     people = collect(people).shuffle().split(2);
-
-    let startWeek = 34;
-    const endWeek = 51;
+    let startWeek = parseFloat(req.body.week_start);
+    const endWeek = parseFloat(req.body.week_end);
     const weeks = endWeek - startWeek;
     const schedule = [];
 
@@ -61,7 +60,8 @@ router.get('/nytt', (req, res) => {
         i++;
     }
     fs.writeFile(scheduleFile, JSON.stringify(schedule));
-    res.json(JSON.stringify(schedule));
+    
+    res.redirect('/folket');
 });
 
 module.exports = router;
